@@ -21,7 +21,8 @@ def coherence_mutuelle(D, phi):
 def generate_liste_phi(P,N,low,high,p,threshold):
     M = ceil((P*N)/100)
     size = (M,N)
-    print("size of sensing matrix",size)
+    print("\n---------Ratio Compression = {}%----------".format(P))
+    print("Size of sensing matrix (Phi)",size)
     liste_matrice_mesure = [phi1(size,low,high),phi2(size,p),phi3(size,p),phi4(size,M),phi5(size,threshold)]
 
     return liste_matrice_mesure
