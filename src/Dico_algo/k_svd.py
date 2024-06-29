@@ -2,11 +2,14 @@ import numpy as np
 from math import *
 from scipy.linalg import svd, norm
 from scipy.sparse.linalg import svds
-from tqdm import tqdm
-from time import sleep
 import pandas as pd
+import os
 
 from .utils import *
+from Init_config.load_data import data_directory
+
+alpha_file_name = "alpha.xlsx"
+alpha_file = os.path.join(data_directory,alpha_file_name)
 
 def affichage_infos(U,s,V,alpha):
     print("U",U)
@@ -91,7 +94,6 @@ def generate_D(Data,
     if max_alpha == None:
         max_alpha = num_atoms
 
-    #iterator = tqdm(range(1,maxiter+1)) #if debug else range(1,maxiter+1)
     for iteration in range(maxiter):
         for zz in range(num_atoms):
             dico_init[:,zz] = dico_init[:,zz] / np.linalg.norm(dico_init[:,zz])
@@ -160,11 +162,14 @@ def generate_D(Data,
 
 
         new_x = dico_init.dot(alpha)
-        print("erreur update", np.linalg.norm(Y-new_x))
         
+        erreur = np.linalg.norm(Y-new_x)
+        progress_bar = "[" + "=" * iteration + ">" + "." * (maxiter - iteration) + "]"
+        # Impression explicite de l'itération, de l'erreur et de la barre de progression
+        print(f"Iteration: {iteration} - Erreur: {erreur:.4f} {progress_bar}")
+
     df_alpha = pd.DataFrame(alpha)
-    filepath = 'alpha.xlsx'
-    df_alpha.to_excel(filepath, index=False)
+    df_alpha.to_excel(alpha_file, index=False)
 
     return dico
 

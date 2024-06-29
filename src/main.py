@@ -2,6 +2,14 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+print("####################################################")
+print("#                                                  #")
+print("#          Compressive Sensing Project             #")
+print("#                                                  #")
+print("####################################################")
+
+print("\n1.-----------------Initialisation-----------------\n")
+
 ####################################################
 #                                                  #
 #------Import des fichiers python necessaires------#
@@ -43,6 +51,8 @@ from Reconstruct.functions import *
 df2 = pd.DataFrame(index=liste_func, columns=liste_P)
 
 ###----------------------------------------------------###
+dico_file_name = "dico.xlsx"
+dico_file = os.path.join(data_directory,dico_file_name)
 
 config_params_dico = config_dico()
 config_params_dico = list(map(lambda arg: arg[0] if isinstance(arg, tuple) and len(arg) > 0 else arg, config_params_dico))
@@ -63,27 +73,32 @@ def create_dico(x_train,              #  Dataset d'entrainement
             initial_D=None):          #  Check d'un dictionnaire déjà existant
 
     try:
-        try: df_dico = pd.read_excel(r'dico.xlsx',sheet_name="dico",engine='openpyxl', header=None)
-        except: pass
+        df_dico = pd.read_excel(dico_file,sheet_name="dico",engine='openpyxl', header=None)
         
-        print(df_dico)
+        #print(df_dico)
         dico = df_dico.to_numpy()
     except:
+        print("Dictionnaire non trouvé\n")
+        print("--------Création du dictionnaire--------")
         dico = generate_D(x_train,num_atoms,maxiter,func,iteration_algo,max_alpha,arret_stop_algo,t_st_omp,epsilon_irls,p_irls,approx,verbose,method_dico,initial_D) #K-svd
-        dico_file = dico.tolist()
+        print("-----Fin de la création du dictionnaire-----")
+        dico_list = dico.tolist()
 
         workbook = Workbook()
         worksheet = workbook.create_sheet(title="dico")
 
-        for row in dico_file:
+        for row in dico_list:
             worksheet.append(row)
 
-        try: workbook.save('dico.xlsx')
+        try: workbook.save(dico_file)
         except: pass
 
     return dico
 
+
+print("\n2.-------------Chargement du dictionnaire------------")
 dico = create_dico(*config_params_dico)
+
 
 ###----------------------------------------------------###
 
@@ -101,18 +116,24 @@ def set_config(dico,low,high,p,threshold,liste_P):
         df_mesures = df_mesures.astype(np.float64)
 
         index_nom_min = df_mesures[P].idxmin()
+        value_min = df_mesures[P].min()
         index_min = df_mesures.index.get_loc(index_nom_min)
-        print("index_nom_min",index_nom_min)
-
+        print("\nResultat:")
+        print("Coherence mutuelle minimale: {} avec la matrice de mesure {}".format(value_min,index_nom_min))
+        
         phi = liste_phi[index_min]
         liste_phi_P.append(phi)
 
-    print(df) #Tableau 1
 
+    print("\nTableau global des mesures:")
+    print(df) #Tableau 1
+    
+    
     return liste_phi_P
 
+print("\n3.-----------Construction des matrices de mesures----------")
 liste_phi = set_config(*config_params_phi)
-
+print("-----------Fin de la construction des matrices de mesures----------\n")
 ###----------------------------------------------------###
 
 config_params_run = config_run(dico,liste_phi,liste_P)
@@ -167,15 +188,20 @@ def run(X_origin,
 
         P = liste_P[index_P]
         df2.loc[func, P] = erreur
-        print(df2)
+        print("Erreur moyenne (P = {}, func = {}): {}".format(P,func,erreur))
+        
 
         X_reconstruct_tmp = np.matrix(X_reconstruct_tmp).T
-        X_reconstruct.append(X_reconstruct_tmp)
+        X_reconstruct.append(X_reconstruct_tmp)  
+
+    print("\nTableau général des erreurs:")
+    print(df2)
 
     X_origin = X_origin[:,idxs]
     if affichage == True:
         print_graphs_depends_P(X_origin,X_reconstruct,liste_P,nb_graphs)
 
+print("\n4.-----------Lancement des reconstructions----------")
 run(*config_params_run)
 
 ###----------------------------------------------------###
@@ -186,3 +212,5 @@ for func_pursuit in liste_func:
 
 print(df2)
 """
+
+print("\n-------------Fin du programme-------------")
