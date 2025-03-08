@@ -84,3 +84,9 @@ Pour plus de détails, consultez le diagramme et la documentation ci-dessous :
 ### Ressources Complémentaires
 Pour une analyse détaillée, consultez le document PDF :
 [Documentation Détaillée du Projet Compressive Sensing](docs/Rapport_projet_Compressive_Sensing.pdf)
+
+## Repos source
+
+Base: https://gitlab.com/science2344915/compressive_sensing/projet_cs.git
+
+Mirror: https://github.com/gwendalauphan/BE_python.git
